@@ -1,19 +1,24 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
-
+const express = require("express");
 const app = express();
 
-app.use(cors());
+// middleware
 app.use(express.json());
 
+// test route
 app.get("/", (req, res) => {
-  res.send("Rhockstar Nation Backend is LIVE 🚀");
+  res.send("Backend is live on Render 🚀");
 });
 
-const PORT = process.env.PORT || 5000;
+// example API route
+app.get("/api", (req, res) => {
+  res.json({
+    message: "API working fine",
+    status: "success"
+  });
+});
+
+// Render port setup (VERY IMPORTANT)
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
