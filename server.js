@@ -1,81 +1,91 @@
+
 const express = require("express");
 const cors = require("cors");
+const bodyParser = require("body-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
+app.use(cors({ origin: "*" }));
+app.use(bodyParser.json());
 
-app.use(cors());
-app.use(express.json());
+const SECRET = "rhockstar_secret";
 
-// ===============================
-// PORTFOLIO DATA
-// ===============================
-let portfolio = {
-  web: [],
-  marketing: [],
-  design: [],
-  business: []
-};
-
-// ===============================
-// ADMIN LOGIN (SIMPLE)
-// ===============================
-app.post("/api/admin/login", (req, res) => {
+/* =========================
+   ADMIN LOGIN
+========================= */
+app.post("/admin/login", (req, res) => {
   const { username, password } = req.body;
 
-  if (username === "Rhockstar" && password === "brue199$") {
-    return res.json({ token: "rhockstar_admin_token" });
+  if (username === "admin" && password === "1234") {
+    const token = jwt.sign({ role: "admin" }, SECRET, { expiresIn: "2h" });
+
+    return res.json({ token });
   }
 
-  return res.status(401).json({ message: "Invalid login" });
-});
-app.post("/api/admin/login", (req, res) => {
-  console.log("LOGIN HIT:", req.body);
-
-  res.json({ ok: true });
-});
-// ===============================
-// GET PORTFOLIO
-// ===============================
-app.get("/api/portfolio/:type", (req, res) => {
-  const type = req.params.type;
-
-  if (!portfolio[type]) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
-
-  res.json(portfolio[type]);
+  return res.status(401).json({ message: "Invalid credentials" });
 });
 
-// ===============================
-// ADD PORTFOLIO (ADMIN)
-// ===============================
-app.post("/api/portfolio/add", (req, res) => {
-  const { category, imageUrl } = req.body;
-
-  if (!portfolio[category]) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
-
-  portfolio[category].push(imageUrl);
-
-  res.json({ message: "Added successfully" });
-});
-
-// ===============================
-// ORDERS
-// ===============================
+/* =========================
+   ORDERS STORAGE
+========================= */
 let orders = [];
 
-app.post("/api/orders/add", (req, res) => {
-  orders.push(req.body);
-  res.json({ message: "Order received" });
+/* =========================
+   CREATE ORDER
+========================= */
+app.post("/orders", (req, res) => {
+  const newOrder = {
+    id: Date.now(),
+    ...req.body,
+    status: "Pending"
+  };
+
+  orders.push(newOrder);
+
+  res.json(newOrder);
 });
 
-app.get("/api/orders", (req, res) => {
+/* =========================
+   AUTH MIDDLEWARE
+========================= */
+function verifyAdmin(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token) return res.status(403).json({ message: "No token" });
+
+  try {
+    jwt.verify(token, SECRET);
+    next();
+  } catch {
+    res.status(403).json({ message: "Invalid token" });
+  }
+}
+
+/* =========================
+   GET ALL ORDERS (ADMIN)
+========================= */
+app.get("/orders", verifyAdmin, (req, res) => {
   res.json(orders);
 });
 
-// ===============================
+/* =========================
+   UPDATE ORDER STATUS
+========================= */
+app.put("/orders/:id", verifyAdmin, (req, res) => {
+  const order = orders.find(o => o.id == req.params.id);
+
+  if (!order) {
+    return res.status(404).json({ message: "Not found" });
+  }
+
+  order.status = req.body.status;
+
+  res.json(order);
+});
+
+/* =========================
+   START SERVER
+========================= */
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });
