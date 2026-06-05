@@ -22,7 +22,7 @@ let portfolio = {
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
 
-  if (username === "admin" && password === "1234") {
+  if (username === "Rhockstar" && password === "brue199$") {
     return res.json({ token: "rhockstar_admin_token" });
   }
 
