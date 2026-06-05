@@ -28,7 +28,11 @@ app.post("/api/admin/login", (req, res) => {
 
   return res.status(401).json({ message: "Invalid login" });
 });
+app.post("/api/admin/login", (req, res) => {
+  console.log("LOGIN HIT:", req.body);
 
+  res.json({ ok: true });
+});
 // ===============================
 // GET PORTFOLIO
 // ===============================
