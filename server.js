@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 const SECRET = "rhockstar_secret";
 
 /* ADMIN LOGIN */
-app.post("/admin/login", (req, res) => {
+app.post("admin/admin/login", (req, res) => {
   const { username, password } = req.body;
 
   if (username === "admin@rhockstar.com" && password === "brue199$") {
