@@ -14,7 +14,7 @@ const SECRET = "rhockstar_secret";
 app.post("/admin/login", (req, res) => {
   const { username, password } = req.body;
 
-  if (username === "admin" && password === "1234") {
+  if (username === "admin@rhockstar.com" && password === "brue199$") {
     const token = jwt.sign(
       { role: "admin" },
       SECRET,
